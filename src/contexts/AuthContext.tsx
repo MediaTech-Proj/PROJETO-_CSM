@@ -1,63 +1,64 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/supabase/client';
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
 
 interface AuthContextType {
   user: User | null;
-  session: Session | null;
   loading: boolean;
   signOut: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
+  async function refreshUser() {
+    try {
+      const res = await fetch('/__MOCK_API__/user', {
+        method: 'GET',
+        credentials: 'include'
+      });
+      if (!res.ok) {
+        setUser(null);
+        return;
       }
-    );
+      const data = await res.json();
+      setUser(data.user ?? null);
+    } catch (e) {
+      setUser(null);
+    }
+  }
 
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+  useEffect(() => {
+    refreshUser().finally(() => setLoading(false));
   }, []);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    try {
+      await fetch('/__MOCK_API__/logout', { method: 'POST', credentials: 'include' });
+    } catch {}
+    setUser(null);
   };
 
-  const value = {
+  const value: AuthContextType = {
     user,
-    session,
     loading,
     signOut,
+    refreshUser,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
+  return ctx;
 }
