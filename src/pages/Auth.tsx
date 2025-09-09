@@ -3,7 +3,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Auth() {
   const [tab, setTab] = useState("login");
@@ -12,6 +12,8 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -24,9 +26,10 @@ export default function Auth() {
     setSuccess("");
     try {
       const endpoint = tab === "register" ? "/register" : "/login";
-      const body = tab === "register"
-        ? { name: form.name, email: form.email, password: form.password }
-        : { email: form.email, password: form.password };
+      const body =
+        tab === "register"
+          ? { name: form.name, email: form.email, password: form.password }
+          : { email: form.email, password: form.password };
       const res = await fetch(`http://localhost:3001${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -34,6 +37,7 @@ export default function Auth() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Erro ao autenticar");
+
       if (tab === "register") {
         setSuccess("Cadastro realizado! Faça login.");
         setTab("login");
@@ -42,6 +46,9 @@ export default function Auth() {
         // Salva token e atualiza contexto
         localStorage.setItem("token", data.token);
         await refreshUser();
+
+        // Redireciona para a página inicial após login
+        navigate("/");
       }
     } catch (err: any) {
       setError(err.message);
@@ -65,13 +72,29 @@ export default function Auth() {
             <form className="space-y-4" onSubmit={handleSubmit}>
               <div>
                 <label className="block text-sm mb-1">Email</label>
-                <Input type="email" name="email" placeholder="seu@email.com" required value={form.email} onChange={handleChange} />
+                <Input
+                  type="email"
+                  name="email"
+                  placeholder="seu@email.com"
+                  required
+                  value={form.email}
+                  onChange={handleChange}
+                />
               </div>
               <div>
                 <label className="block text-sm mb-1">Senha</label>
-                <Input type="password" name="password" placeholder="••••••••" required value={form.password} onChange={handleChange} />
+                <Input
+                  type="password"
+                  name="password"
+                  placeholder="••••••••"
+                  required
+                  value={form.password}
+                  onChange={handleChange}
+                />
               </div>
-              <Button type="submit" className="w-full" disabled={loading}>{loading ? "Entrando..." : "Entrar"}</Button>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "Entrando..." : "Entrar"}
+              </Button>
             </form>
           </TabsContent>
 
@@ -79,27 +102,59 @@ export default function Auth() {
             <form className="space-y-4" onSubmit={handleSubmit}>
               <div>
                 <label className="block text-sm mb-1">Nome</label>
-                <Input type="text" name="name" placeholder="Seu nome" required value={form.name} onChange={handleChange} />
+                <Input
+                  type="text"
+                  name="name"
+                  placeholder="Seu nome"
+                  required
+                  value={form.name}
+                  onChange={handleChange}
+                />
               </div>
               <div>
                 <label className="block text-sm mb-1">Email</label>
-                <Input type="email" name="email" placeholder="seu@email.com" required value={form.email} onChange={handleChange} />
+                <Input
+                  type="email"
+                  name="email"
+                  placeholder="seu@email.com"
+                  required
+                  value={form.email}
+                  onChange={handleChange}
+                />
               </div>
               <div>
                 <label className="block text-sm mb-1">Senha</label>
-                <Input type="password" name="password" placeholder="••••••••" required value={form.password} onChange={handleChange} />
+                <Input
+                  type="password"
+                  name="password"
+                  placeholder="••••••••"
+                  required
+                  value={form.password}
+                  onChange={handleChange}
+                />
               </div>
-              <Button type="submit" className="w-full" disabled={loading}>{loading ? "Cadastrando..." : "Cadastrar"}</Button>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "Cadastrando..." : "Cadastrar"}
+              </Button>
             </form>
           </TabsContent>
         </Tabs>
 
         {(error || success) && (
-          <div className={`text-center mt-4 ${error ? "text-red-500" : "text-green-500"}`}>{error || success}</div>
+          <div
+            className={`text-center mt-4 ${
+              error ? "text-red-500" : "text-green-500"
+            }`}
+          >
+            {error || success}
+          </div>
         )}
 
         <div className="text-center mt-6">
-          <Link to="/" className="text-sm text-primary hover:text-primary-glow transition-colors">
+          <Link
+            to="/"
+            className="text-sm text-primary hover:text-primary-glow transition-colors"
+          >
             Voltar para a página inicial
           </Link>
         </div>

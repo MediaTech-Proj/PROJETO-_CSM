@@ -62,6 +62,57 @@ app.get("/users", async (req, res) => {
   res.json(users);
 });
 
+// rota para pegar dados do usuário logado
+app.get("/me", async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ message: "Token não fornecido" });
+
+  const token = authHeader.split(" ")[1];
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const user = await prisma.user.findUnique({ where: { id: decoded.id } });
+    if (!user) return res.status(404).json({ message: "Usuário não encontrado" });
+
+    res.json({ user: { id: user.id, name: user.name, email: user.email } });
+  } catch (err) {
+    res.status(401).json({ message: "Token inválido" });
+  }
+});
+
+// Atualizar dados do usuário
+app.put("/users/:id", async (req, res) => {
+  const { id } = req.params;
+  const { name, email, password } = req.body;
+
+  try {
+    const dataToUpdate = { name, email };
+    if (password) {
+      const hash = await bcrypt.hash(password, 10);
+      dataToUpdate.password = hash;
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: Number(id) },
+      data: dataToUpdate,
+    });
+
+    res.json({ id: updatedUser.id, name: updatedUser.name, email: updatedUser.email });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Deletar conta
+app.delete("/users/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    await prisma.user.delete({ where: { id: Number(id) } });
+    res.json({ message: "Conta deletada com sucesso" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // ------------------------
 // ROTAS DE CATEGORIAS
 // ------------------------

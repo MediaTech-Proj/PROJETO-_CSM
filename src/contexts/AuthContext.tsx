@@ -20,18 +20,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   async function refreshUser() {
+    const token = localStorage.getItem("token");
+    if (!token) return setUser(null);
+
     try {
-      const res = await fetch('/__MOCK_API__/user', {
-        method: 'GET',
-        credentials: 'include'
+      const res = await fetch("http://localhost:3001/me", {
+        headers: { Authorization: `Bearer ${token}` },
       });
-      if (!res.ok) {
-        setUser(null);
-        return;
-      }
+      if (!res.ok) return setUser(null);
+
       const data = await res.json();
       setUser(data.user ?? null);
-    } catch (e) {
+    } catch {
       setUser(null);
     }
   }
@@ -41,18 +41,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signOut = async () => {
-    try {
-      await fetch('/__MOCK_API__/logout', { method: 'POST', credentials: 'include' });
-    } catch {}
+    localStorage.removeItem("token");
     setUser(null);
   };
 
-  const value: AuthContextType = {
-    user,
-    loading,
-    signOut,
-    refreshUser,
-  };
+  const value: AuthContextType = { user, loading, signOut, refreshUser };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
