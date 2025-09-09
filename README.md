@@ -76,17 +76,65 @@ Implementação de um sistema de consentimento explícito para coleta de dados, 
 
 ## Como Executar Localmente
 
-1. **Baixe ou clone o projeto:**
+## Pré-requisitos
+
+Certifique-se de que a máquina tenha instalado:
+
+- Node.js e npm
+- MySQL (ou XAMPP/WAMP)
+- Editor de código (ex: VSCode)
+
+## Clonar ou baixar projeto
 
    ```bash
    [git clone https://github.com/alicecustodiodecarvalho/MediaTechStore-proj.git](https://github.com/MediaTech-Proj/PROJETO-_CSM.git)
    ```
 
-2. **Abra o projeto:**
+## Configurar o Backend
 
-   Assim que abrir a pasta do projeto, no terminal executar os seguintes comandos:
-   "npm i" para baixar a node modules e suas dependências, e para rodar o projeto é só dar "npm run dev"
+Abra o terminal e entre na pasta do backend:
 
+- cd server
+- npm install
+
+Crie um arquivo .env com as variáveis de ambiente:
+
+env
+DATABASE_URL="mysql://root:suasenha@localhost:3306/filmesdb"
+JWT_SECRET="supersecret"
+PORT=3001
+Substitua sua senha pela senha do MySQL da máquina.
+
+Crie o banco de dados no MySQL:
+
+sql
+CREATE DATABASE filmesdb;
+
+Rode as migrations do Prisma:
+
+- npx prisma migrate dev --name init
+
+Abra o Prisma Studio se quiser conferir as tabelas:
+
+- npx prisma studio
+
+Inicie o backend:
+
+npm run dev
+O backend ficará rodando em: http://localhost:3001
+
+## Configurar o Frontend
+
+Abra um segundo terminal e entre na pasta do frontend (diretório raiz mesmo):
+
+bash
+-npm install
+-npm run dev
+-O Vite mostrará o endereço local
+-Abra no navegador para acessar o site.
+
+## Observações
+Certifique-se de que frontend e backend estão rodando ao mesmo tempo, ou seja são dois terminais um para o frontend e outro para o backend.
 
 
 # PROJETO-_CSM
