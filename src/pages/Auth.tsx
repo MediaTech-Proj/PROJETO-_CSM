@@ -30,11 +30,13 @@ export default function Auth() {
         tab === "register"
           ? { name: form.name, email: form.email, password: form.password }
           : { email: form.email, password: form.password };
+
       const res = await fetch(`http://localhost:3001${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
+
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Erro ao autenticar");
 
@@ -47,8 +49,12 @@ export default function Auth() {
         localStorage.setItem("token", data.token);
         await refreshUser();
 
-        // Redireciona para a página inicial após login
-        navigate("/");
+        // Redireciona dependendo do role
+        if (data.user.role === "admin") {
+          navigate("/admin/users"); // Admin vai para a página de usuários
+        } else {
+          navigate("/"); // Usuário normal vai para a página inicial
+        }
       }
     } catch (err: any) {
       setError(err.message);
@@ -60,7 +66,7 @@ export default function Auth() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
       <div className="w-full max-w-md p-6 rounded-2xl shadow-lg bg-card">
-        <h1 className="text-2xl font-bold text-center mb-6">Bem-vindo</h1>
+        <h1 className="text-2xl font-bold text-center mb-6 text-white">Bem-vindo</h1>
 
         <Tabs value={tab} onValueChange={setTab} className="w-full">
           <TabsList className="grid grid-cols-2 mb-4">
@@ -71,7 +77,7 @@ export default function Auth() {
           <TabsContent value="login">
             <form className="space-y-4" onSubmit={handleSubmit}>
               <div>
-                <label className="block text-sm mb-1">Email</label>
+                <label className="block text-sm mb-1 text-white">Email</label>
                 <Input
                   type="email"
                   name="email"
@@ -79,10 +85,11 @@ export default function Auth() {
                   required
                   value={form.email}
                   onChange={handleChange}
+                  className="text-white placeholder:text-gray-400"
                 />
               </div>
               <div>
-                <label className="block text-sm mb-1">Senha</label>
+                <label className="block text-sm mb-1 text-white">Senha</label>
                 <Input
                   type="password"
                   name="password"
@@ -90,6 +97,7 @@ export default function Auth() {
                   required
                   value={form.password}
                   onChange={handleChange}
+                  className="text-white placeholder:text-gray-400"
                 />
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
@@ -101,7 +109,7 @@ export default function Auth() {
           <TabsContent value="register">
             <form className="space-y-4" onSubmit={handleSubmit}>
               <div>
-                <label className="block text-sm mb-1">Nome</label>
+                <label className="block text-sm mb-1 text-white">Nome</label>
                 <Input
                   type="text"
                   name="name"
@@ -109,10 +117,11 @@ export default function Auth() {
                   required
                   value={form.name}
                   onChange={handleChange}
+                  className="text-white placeholder:text-gray-400"
                 />
               </div>
               <div>
-                <label className="block text-sm mb-1">Email</label>
+                <label className="block text-sm mb-1 text-white">Email</label>
                 <Input
                   type="email"
                   name="email"
@@ -120,10 +129,11 @@ export default function Auth() {
                   required
                   value={form.email}
                   onChange={handleChange}
+                  className="text-white placeholder:text-gray-400"
                 />
               </div>
               <div>
-                <label className="block text-sm mb-1">Senha</label>
+                <label className="block text-sm mb-1 text-white">Senha</label>
                 <Input
                   type="password"
                   name="password"
@@ -131,6 +141,7 @@ export default function Auth() {
                   required
                   value={form.password}
                   onChange={handleChange}
+                  className="text-white placeholder:text-gray-400"
                 />
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
@@ -142,9 +153,7 @@ export default function Auth() {
 
         {(error || success) && (
           <div
-            className={`text-center mt-4 ${
-              error ? "text-red-500" : "text-green-500"
-            }`}
+            className={`text-center mt-4 ${error ? "text-red-500" : "text-green-500"}`}
           >
             {error || success}
           </div>
