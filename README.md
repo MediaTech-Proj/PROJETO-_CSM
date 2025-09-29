@@ -136,6 +136,23 @@ bash
 ## Observações
 Certifique-se de que frontend e backend estão rodando ao mesmo tempo, ou seja são dois terminais um para o frontend e outro para o backend.
 
+## Relatório (Implementação de CRUD)
+Entidade escolhida e justificativa:
+A entidade escolhida para o CRUD foi Usuário, incluindo distinção entre usuários comuns e administradores. Essa escolha se justifica porque o sistema precisava gerenciar acessos, controlar permissões e permitir que admins pudessem visualizar, criar, editar e deletar usuários. Além disso, gerenciar usuários é uma funcionalidade essencial para qualquer aplicação com login, garantindo que cada perfil tenha o acesso adequado às informações e funcionalidades.
+
+Tecnologias/Linguagens utilizadas:
+
+Frontend: React + TypeScript, React Router para navegação, Tailwind CSS para estilização, React Query para gerenciamento de dados assíncronos, componentes customizados como Input, Button, Tabs do seu próprio design system.
+
+Backend: Node.js + Express, Prisma ORM para integração com o banco MySQL, bcrypt para hashing de senhas, JWT para autenticação e controle de sessões.
+
+Banco de dados: MySQL, utilizado via Prisma ORM para persistência de dados.
+
+Desafios encontrados:
+
+Autenticação e controle de roles: Foi necessário criar middlewares requireAuth e requireAdmin para proteger rotas e permitir que apenas admins acessassem páginas específicas. Houve erros com user.role undefined, solucionado garantindo que todos os usuários tivessem a propriedade role no banco.
+
+Gerenciamento de erros e tokens: Durante o login e requisições de admin, surgiam erros de token inválido ou expirado. Resolvido garantindo que o token fosse salvo no localStorage, incluído no header Authorization e validado em todas as rotas protegidas.
 
 # PROJETO-_CSM
 
