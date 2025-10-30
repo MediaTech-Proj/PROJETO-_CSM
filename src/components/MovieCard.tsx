@@ -1,17 +1,44 @@
-import { useState } from "react";
-import { Star, Play, Clock } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Star, Play, Clock, Heart } from "lucide-react";
 
 interface MovieCardProps {
+  id: number;
   title: string;
   year: number;
   rating: number;
   genre: string;
   poster: string;
   duration?: string;
+  onAddFavorite?: (movieId: number) => void;
 }
 
-export const MovieCard = ({ title, year, rating, genre, poster, duration }: MovieCardProps) => {
+export const MovieCard = ({ id, title, year, rating, genre, poster, duration, onAddFavorite }: MovieCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      if (!token) return;
+      try {
+        const res = await fetch("http://localhost:3001/favorites", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        setIsFavorite(data.some((m: any) => m.id === id));
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchFavorites();
+  }, [id, token]);
+
+  const handleFavorite = () => {
+    if (onAddFavorite) onAddFavorite(id);
+    setIsFavorite(true);
+  };
 
   return (
     <div
@@ -19,53 +46,20 @@ export const MovieCard = ({ title, year, rating, genre, poster, duration }: Movi
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="relative aspect-[2/3] overflow-hidden">
-        <img
-          src={poster}
-          alt={`${title} poster`}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-        />
-        
-        {/* Overlay gradient */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        
-        {/* Play button overlay */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <div className="bg-primary/90 rounded-full p-3 shadow-glow-primary backdrop-blur-sm">
-            <Play className="w-6 h-6 text-primary-foreground ml-1" fill="currentColor" />
-          </div>
-        </div>
+      <img src={poster} alt={title} className="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-300" />
 
-        {/* Rating badge */}
-        <div className="absolute top-2 right-2 bg-black/80 backdrop-blur-sm rounded-lg px-2 py-1 flex items-center gap-1">
-          <Star className="w-3 h-3 text-yellow-400 fill-current" />
-          <span className="text-xs font-medium text-foreground">{rating.toFixed(1)}</span>
-        </div>
+      <button
+        onClick={(e) => { e.stopPropagation(); handleFavorite(); }}
+        className="absolute top-2 left-2 bg-black/60 hover:bg-black/80 backdrop-blur-sm rounded-full p-1.5"
+      >
+        <Heart className={`w-4 h-4 ${isFavorite ? "text-red-500 fill-red-500" : "text-white"}`} />
+      </button>
 
-        {/* Duration badge */}
-        {duration && (
-          <div className="absolute top-2 left-2 bg-secondary/90 backdrop-blur-sm rounded-lg px-2 py-1 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <Clock className="w-3 h-3 text-secondary-foreground" />
-            <span className="text-xs font-medium text-secondary-foreground">{duration}</span>
-          </div>
-        )}
+      <div className="p-3">
+        <h3 className="font-semibold text-sm truncate">{title}</h3>
+        <p className="text-xs text-muted-foreground">{genre} • {year}</p>
+        <p className="text-xs text-muted-foreground">⭐ {rating.toFixed(1)}</p>
       </div>
-
-      {/* Movie info */}
-      <div className="p-4">
-        <h3 className="font-semibold text-foreground text-sm line-clamp-1 mb-1">{title}</h3>
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>{year}</span>
-          <span className="bg-accent/20 text-accent-foreground px-2 py-1 rounded-full">{genre}</span>
-        </div>
-      </div>
-
-      {/* Hover glow effect */}
-      <div 
-        className={`absolute inset-0 rounded-lg bg-gradient-to-r from-primary/10 to-secondary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none ${
-          isHovered ? 'shadow-glow-primary' : ''
-        }`}
-      />
     </div>
   );
 };

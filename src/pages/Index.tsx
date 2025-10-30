@@ -1,213 +1,86 @@
+import { useEffect, useState } from "react";
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
 import { MovieSection } from "@/components/MovieSection";
 
-// Import movie posters
-import quantumBreakPoster from "@/assets/movie-quantum-break.jpg";
-import midnightParisPoster from "@/assets/movie-midnight-paris.jpg";
-import desertStormPoster from "@/assets/movie-desert-storm.jpg";
-import hauntingPoster from "@/assets/movie-haunting.jpg";
-import oceanAdventuresPoster from "@/assets/movie-ocean-adventures.jpg";
-
-// Mock data for movies
-const popularMovies = [
-  {
-    id: "1",
-    title: "Quantum Break",
-    year: 2024,
-    rating: 8.5,
-    genre: "Sci-Fi",
-    poster: quantumBreakPoster,
-    duration: "2h 15m"
-  },
-  {
-    id: "2",
-    title: "Desert Storm",
-    year: 2023,
-    rating: 7.8,
-    genre: "Ação",
-    poster: desertStormPoster,
-    duration: "1h 58m"
-  },
-  {
-    id: "3",
-    title: "The Haunting",
-    year: 2024,
-    rating: 8.2,
-    genre: "Terror",
-    poster: hauntingPoster,
-    duration: "1h 45m"
-  },
-  {
-    id: "4",
-    title: "Ocean Adventures",
-    year: 2023,
-    rating: 7.5,
-    genre: "Família",
-    poster: oceanAdventuresPoster,
-    duration: "1h 32m"
-  },
-  {
-    id: "5",
-    title: "Midnight in Paris",
-    year: 2024,
-    rating: 9.1,
-    genre: "Romance",
-    poster: midnightParisPoster,
-    duration: "2h 05m"
-  },
-  {
-    id: "6",
-    title: "Quantum Break",
-    year: 2024,
-    rating: 8.5,
-    genre: "Sci-Fi",
-    poster: quantumBreakPoster,
-    duration: "2h 15m"
-  }
-];
-
-const classicMovies = [
-  {
-    id: "7",
-    title: "Midnight in Paris",
-    year: 2024,
-    rating: 9.1,
-    genre: "Romance",
-    poster: midnightParisPoster,
-    duration: "2h 05m"
-  },
-  {
-    id: "8",
-    title: "The Haunting",
-    year: 2024,
-    rating: 8.2,
-    genre: "Terror",
-    poster: hauntingPoster,
-    duration: "1h 45m"
-  },
-  {
-    id: "9",
-    title: "Desert Storm",
-    year: 2023,
-    rating: 7.8,
-    genre: "Ação",
-    poster: desertStormPoster,
-    duration: "1h 58m"
-  },
-  {
-    id: "10",
-    title: "Quantum Break",
-    year: 2024,
-    rating: 8.5,
-    genre: "Sci-Fi",
-    poster: quantumBreakPoster,
-    duration: "2h 15m"
-  },
-  {
-    id: "11",
-    title: "Ocean Adventures",
-    year: 2023,
-    rating: 7.5,
-    genre: "Família",
-    poster: oceanAdventuresPoster,
-    duration: "1h 32m"
-  },
-  {
-    id: "12",
-    title: "Midnight in Paris",
-    year: 2024,
-    rating: 9.1,
-    genre: "Romance",
-    poster: midnightParisPoster,
-    duration: "2h 05m"
-  }
-];
-
-const trendingMovies = [
-  {
-    id: "13",
-    title: "Ocean Adventures",
-    year: 2023,
-    rating: 7.5,
-    genre: "Família",
-    poster: oceanAdventuresPoster,
-    duration: "1h 32m"
-  },
-  {
-    id: "14",
-    title: "Quantum Break",
-    year: 2024,
-    rating: 8.5,
-    genre: "Sci-Fi",
-    poster: quantumBreakPoster,
-    duration: "2h 15m"
-  },
-  {
-    id: "15",
-    title: "The Haunting",
-    year: 2024,
-    rating: 8.2,
-    genre: "Terror",
-    poster: hauntingPoster,
-    duration: "1h 45m"
-  },
-  {
-    id: "16",
-    title: "Midnight in Paris",
-    year: 2024,
-    rating: 9.1,
-    genre: "Romance",
-    poster: midnightParisPoster,
-    duration: "2h 05m"
-  },
-  {
-    id: "17",
-    title: "Desert Storm",
-    year: 2023,
-    rating: 7.8,
-    genre: "Ação",
-    poster: desertStormPoster,
-    duration: "1h 58m"
-  },
-  {
-    id: "18",
-    title: "Ocean Adventures",
-    year: 2023,
-    rating: 7.5,
-    genre: "Família",
-    poster: oceanAdventuresPoster,
-    duration: "1h 32m"
-  }
-];
+interface Movie {
+  id: number;
+  title: string;
+  year: number;
+  rating: number;
+  genre: string;
+  poster: string;
+  duration?: string;
+  category?: { name: string };
+}
 
 const Index = () => {
+  const [popularMovies, setPopularMovies] = useState<Movie[]>([]);
+  const [classicMovies, setClassicMovies] = useState<Movie[]>([]);
+  const [trendingMovies, setTrendingMovies] = useState<Movie[]>([]);
+
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
+  useEffect(() => {
+    const fetchMovies = async () => {
+      try {
+        const res = await fetch("http://localhost:3001/movies");
+        const data = await res.json();
+
+        const mappedMovies = data.map((m: any) => ({
+          id: m.id,
+          title: m.title,
+          year: m.year || 2024,
+          rating: m.rating || 0,
+          genre: m.genre || "Desconhecido",
+          poster: m.posterUrl || "/default-poster.jpg",
+          duration: m.duration,
+          category: m.category,
+        }));
+
+        setPopularMovies(mappedMovies.filter((m) => m.category?.name.toLowerCase() === "popular"));
+        setClassicMovies(mappedMovies.filter((m) => m.category?.name.toLowerCase() === "clássicos"));
+        setTrendingMovies(mappedMovies.filter((m) => m.category?.name.toLowerCase() === "em alta"));
+      } catch (err) {
+        console.error("Erro ao carregar filmes:", err);
+      }
+    };
+
+    fetchMovies();
+  }, []);
+
+  const handleAddFavorite = async (movieId: number) => {
+    if (!token) return alert("Você precisa estar logado para favoritar filmes!");
+    try {
+      const res = await fetch("http://localhost:3001/favorites", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ movieId }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        return alert(data.message || "Erro ao adicionar favorito");
+      }
+      alert("Filme adicionado aos favoritos!");
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao adicionar favorito");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <Hero />
-      
       <main className="space-y-8">
-        <MovieSection
-          title="Filmes Populares do Momento"
-          movies={popularMovies}
-          icon="trending"
-        />
-        
-        <MovieSection
-          title="Clássicos Imperdíveis"
-          movies={classicMovies}
-          icon="classic"
-        />
-        
-        <MovieSection
-          title="Em Alta Agora"
-          movies={trendingMovies}
-          icon="award"
-        />
+        <MovieSection title="Filmes Populares do Momento" movies={popularMovies} icon="trending" onAddFavorite={handleAddFavorite} />
+        <MovieSection title="Clássicos Imperdíveis" movies={classicMovies} icon="classic" onAddFavorite={handleAddFavorite} />
+        <MovieSection title="Em Alta Agora" movies={trendingMovies} icon="award" onAddFavorite={handleAddFavorite} />
       </main>
-
-      {/* Footer */}
+      
       <footer className="bg-card/50 border-t border-border mt-16 py-8">
         <div className="container mx-auto px-4 text-center">
           <div className="flex items-center justify-center gap-2 mb-4">

@@ -1,8 +1,14 @@
 import { Play, Info, Star, Calendar, Users } from "lucide-react";
 import { Button } from "./ui/button";
 import heroBackground from "@/assets/hero-background.jpg";
+import { useNavigate } from "react-router-dom";
 
 export const Hero = () => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate("/movies"); // redireciona para a página de todos os filmes
+  };
   return (
     <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden">
       {/* Background Image */}
@@ -55,11 +61,12 @@ export const Hero = () => {
             <Button
               size="lg"
               className="bg-gradient-to-r from-primary to-secondary hover:from-primary-glow hover:to-secondary-glow shadow-glow-primary text-white px-8 py-3 rounded-full font-semibold"
+              onClick={handleClick} // 👈 adiciona aqui
             >
               <Play className="w-5 h-5 mr-2 fill-current" />
               Começar Agora
             </Button>
-            
+
             <Button
               variant="outline"
               size="lg"

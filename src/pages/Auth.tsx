@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function Auth() {
   const [tab, setTab] = useState("login");
@@ -12,12 +13,15 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+
+  const toggleShowPassword = () => setShowPassword((prev) => !prev);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,16 +49,10 @@ export default function Auth() {
         setTab("login");
         setForm({ name: "", email: "", password: "" });
       } else {
-        // Salva token e atualiza contexto
         localStorage.setItem("token", data.token);
         await refreshUser();
-
-        // Redireciona dependendo do role
-        if (data.user.role === "admin") {
-          navigate("/admin/users"); // Admin vai para a página de usuários
-        } else {
-          navigate("/"); // Usuário normal vai para a página inicial
-        }
+        if (data.user.role === "admin") navigate("/admin/users");
+        else navigate("/");
       }
     } catch (err: any) {
       setError(err.message);
@@ -74,6 +72,7 @@ export default function Auth() {
             <TabsTrigger value="register">Cadastro</TabsTrigger>
           </TabsList>
 
+          {/* Login */}
           <TabsContent value="login">
             <form className="space-y-4" onSubmit={handleSubmit}>
               <div>
@@ -88,17 +87,24 @@ export default function Auth() {
                   className="text-white placeholder:text-gray-400"
                 />
               </div>
-              <div>
+              <div className="relative">
                 <label className="block text-sm mb-1 text-white">Senha</label>
                 <Input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   name="password"
                   placeholder="••••••••"
                   required
                   value={form.password}
                   onChange={handleChange}
-                  className="text-white placeholder:text-gray-400"
+                  className="text-white placeholder:text-gray-400 pr-10"
                 />
+                <button
+                  type="button"
+                  onClick={toggleShowPassword}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? "Entrando..." : "Entrar"}
@@ -106,6 +112,7 @@ export default function Auth() {
             </form>
           </TabsContent>
 
+          {/* Registro */}
           <TabsContent value="register">
             <form className="space-y-4" onSubmit={handleSubmit}>
               <div>
@@ -132,17 +139,24 @@ export default function Auth() {
                   className="text-white placeholder:text-gray-400"
                 />
               </div>
-              <div>
+              <div className="relative">
                 <label className="block text-sm mb-1 text-white">Senha</label>
                 <Input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   name="password"
                   placeholder="••••••••"
                   required
                   value={form.password}
                   onChange={handleChange}
-                  className="text-white placeholder:text-gray-400"
+                  className="text-white placeholder:text-gray-400 pr-10"
                 />
+                <button
+                  type="button"
+                  onClick={toggleShowPassword}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? "Cadastrando..." : "Cadastrar"}
@@ -152,9 +166,7 @@ export default function Auth() {
         </Tabs>
 
         {(error || success) && (
-          <div
-            className={`text-center mt-4 ${error ? "text-red-500" : "text-green-500"}`}
-          >
+          <div className={`text-center mt-4 ${error ? "text-red-500" : "text-green-500"}`}>
             {error || success}
           </div>
         )}

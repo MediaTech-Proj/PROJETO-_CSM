@@ -11,6 +11,8 @@ import NotFound from "./pages/NotFound";
 import AdminUsers from "./pages/AdminUsers";
 import AdminRegister from "./pages/AdminRegister";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute"; // componente de proteção
+import Favorites from "./pages/Favorites";
+import AllMovies from "./pages/AllMovies";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +28,8 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/favorites" element={<Favorites />} />
+            <Route path="/movies" element={<AllMovies />} />
 
             {/* Rotas protegidas de admin */}
             <Route 

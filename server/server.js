@@ -189,82 +189,89 @@ app.get("/categories", async (req, res) => {
 });
 
 // ------------------------
-// ROTAS DE FILMES/SÉRIES (Titles)
+// ROTAS DE FILMES (MOVIES)
 // ------------------------
-app.get("/titles", async (req, res) => {
-  const titles = await prisma.title.findMany({ include: { category: true } });
-  res.json(titles);
-});
-
-app.post("/titles", async (req, res) => {
-  const { title, description, price, categoryId } = req.body;
+app.get("/movies", async (req, res) => {
   try {
-    const newTitle = await prisma.title.create({
-      data: { title, description, price, categoryId },
+    const movies = await prisma.movie.findMany({
+      include: { category: true },
+      orderBy: { createdAt: "desc" },
     });
-    res.json(newTitle);
+    res.json(movies);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-app.put("/titles/:id", async (req, res) => {
-  const { id } = req.params;
-  const { title, description, price, categoryId } = req.body;
+app.get("/movies/:id", async (req, res) => {
   try {
-    const updatedTitle = await prisma.title.update({
-      where: { id: Number(id) },
-      data: { title, description, price, categoryId },
+    const movie = await prisma.movie.findUnique({
+      where: { id: Number(req.params.id) },
+      include: { category: true },
     });
-    res.json(updatedTitle);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.delete("/titles/:id", async (req, res) => {
-  const { id } = req.params;
-  try {
-    await prisma.title.delete({ where: { id: Number(id) } });
-    res.json({ message: "Title deletado com sucesso" });
+    if (!movie) return res.status(404).json({ message: "Filme não encontrado" });
+    res.json(movie);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
 // ------------------------
-// ROTAS DE PEDIDOS (Orders)
+// ROTAS DE FAVORITOS
 // ------------------------
-app.post("/orders", async (req, res) => {
-  const { userId, items } = req.body;
+
+// Adicionar um filme aos favoritos
+app.post("/favorites", requireAuth, async (req, res) => {
+  const { movieId } = req.body;
+  const userId = req.user.id;
+
   try {
-    const total = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
-    const newOrder = await prisma.order.create({
-      data: {
-        userId,
-        total,
-        items: { create: items },
-      },
-      include: { items: true },
+    const existing = await prisma.favorite.findUnique({
+      where: { userId_movieId: { userId, movieId } },
     });
-    res.json(newOrder);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    if (existing) return res.status(400).json({ message: "Filme já está nos favoritos" });
+
+    const favorite = await prisma.favorite.create({
+      data: { userId, movieId },
+      include: { movie: true },
+    });
+
+    res.json(favorite);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 
-app.get("/orders/:userId", async (req, res) => {
-  const { userId } = req.params;
+// Remover dos favoritos
+app.delete("/favorites/:movieId", requireAuth, async (req, res) => {
+  const movieId = Number(req.params.movieId);
+  const userId = req.user.id;
+
   try {
-    const orders = await prisma.order.findMany({
-      where: { userId: Number(userId) },
-      include: { items: { include: { title: true } } },
+    await prisma.favorite.delete({
+      where: { userId_movieId: { userId, movieId } },
     });
-    res.json(orders);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.json({ message: "Removido dos favoritos" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
+
+// Listar favoritos do usuário logado
+app.get("/favorites", requireAuth, async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const favorites = await prisma.favorite.findMany({
+      where: { userId },
+      include: { movie: true },
+    });
+    res.json(favorites.map(fav => fav.movie));
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 
 // ------------------------
 // INICIAR SERVIDOR

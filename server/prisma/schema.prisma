@@ -8,47 +8,42 @@ datasource db {
 }
 
 model User {
-  id         Int       @id @default(autoincrement())
+  id         Int          @id @default(autoincrement())
   name       String
-  email      String    @unique
+  email      String       @unique
   password   String
-  role       String  @default("user") // "user" ou "admin"
-  createdAt  DateTime  @default(now())
-  orders     Order[]
+  role       String       @default("user")
+  createdAt  DateTime     @default(now())
+  favorites  Favorite[]   // relação com filmes favoritos
+}
+
+model Movie {
+  id          Int          @id @default(autoincrement())
+  title       String
+  description String?
+  year        Int?
+  genre       String?
+  rating      Float?       // média ou nota
+  duration    String?
+  posterUrl   String?
+  categoryId  Int?
+  category    Category?    @relation(fields: [categoryId], references: [id])
+  favorites   Favorite[]   // relação reversa (users que favoritaram)
+  createdAt   DateTime     @default(now())
 }
 
 model Category {
-  id     Int     @id @default(autoincrement())
-  name   String  @unique
-  titles Title[]
+  id      Int      @id @default(autoincrement())
+  name    String   @unique
+  movies  Movie[]
 }
 
-model Title {
-  id          Int       @id @default(autoincrement())
-  title       String
-  description String?
-  price       Decimal   @db.Decimal(10, 2)
-  createdAt   DateTime  @default(now())
-  categoryId  Int?
-  category    Category? @relation(fields: [categoryId], references: [id])
-  items       OrderItem[]
-}
+model Favorite {
+  id      Int    @id @default(autoincrement())
+  userId  Int
+  movieId Int
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movie   Movie  @relation(fields: [movieId], references: [id], onDelete: Cascade)
 
-model Order {
-  id        Int         @id @default(autoincrement())
-  userId    Int
-  total     Decimal     @db.Decimal(10, 2)
-  createdAt DateTime    @default(now())
-  user      User        @relation(fields: [userId], references: [id])
-  items     OrderItem[]
-}
-
-model OrderItem {
-  id       Int     @id @default(autoincrement())
-  orderId  Int
-  titleId  Int
-  quantity Int
-  price    Decimal @db.Decimal(10, 2)
-  order    Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  title    Title   @relation(fields: [titleId], references: [id])
+  @@unique([userId, movieId]) // evita duplicar favoritos
 }

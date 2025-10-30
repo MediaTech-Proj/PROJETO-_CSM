@@ -30,7 +30,7 @@ export const Header = () => {
           </div>
           <div>
             <h1 className="text-xl font-bold bg-gradient-to-r from-primary-glow to-secondary-glow bg-clip-text text-transparent">
-              MediaTech Store
+              MediaTech
             </h1>
             <p className="text-xs text-muted-foreground">Descubra o que assistir</p>
           </div>
@@ -72,6 +72,13 @@ export const Header = () => {
                   </div>
                 </div>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => navigate("/favorites")}
+                >
+                  <Film className="mr-2 h-4 w-4" />
+                  Meus Favoritos
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   className="cursor-pointer"
                   onClick={() => navigate("/profile")}
