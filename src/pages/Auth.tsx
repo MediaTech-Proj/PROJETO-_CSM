@@ -72,7 +72,7 @@ export default function Auth() {
             <TabsTrigger value="register">Cadastro</TabsTrigger>
           </TabsList>
 
-          {/* Login */}
+          {/* LOGIN */}
           <TabsContent value="login">
             <form className="space-y-4" onSubmit={handleSubmit}>
               <div>
@@ -87,32 +87,40 @@ export default function Auth() {
                   className="text-white placeholder:text-gray-400"
                 />
               </div>
-              <div className="relative">
+
+              <div>
                 <label className="block text-sm mb-1 text-white">Senha</label>
-                <Input
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  placeholder="••••••••"
-                  required
-                  value={form.password}
-                  onChange={handleChange}
-                  className="text-white placeholder:text-gray-400 pr-10"
-                />
-                <button
-                  type="button"
-                  onClick={toggleShowPassword}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200"
-                >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
+                <div className="relative flex items-center">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    placeholder="••••••••"
+                    required
+                    value={form.password}
+                    onChange={handleChange}
+                    className="text-white placeholder:text-gray-400 pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={toggleShowPassword}
+                    className="absolute right-3 text-gray-400 hover:text-gray-200 flex items-center justify-center"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
               </div>
+
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? "Entrando..." : "Entrar"}
               </Button>
             </form>
           </TabsContent>
 
-          {/* Registro */}
+          {/* REGISTRO */}
           <TabsContent value="register">
             <form className="space-y-4" onSubmit={handleSubmit}>
               <div>
@@ -127,6 +135,7 @@ export default function Auth() {
                   className="text-white placeholder:text-gray-400"
                 />
               </div>
+
               <div>
                 <label className="block text-sm mb-1 text-white">Email</label>
                 <Input
@@ -139,25 +148,34 @@ export default function Auth() {
                   className="text-white placeholder:text-gray-400"
                 />
               </div>
-              <div className="relative">
+
+              {/* Campo senha cadastro */}
+              <div>
                 <label className="block text-sm mb-1 text-white">Senha</label>
-                <Input
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  placeholder="••••••••"
-                  required
-                  value={form.password}
-                  onChange={handleChange}
-                  className="text-white placeholder:text-gray-400 pr-10"
-                />
-                <button
-                  type="button"
-                  onClick={toggleShowPassword}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200"
-                >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
+                <div className="relative flex items-center">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    placeholder="••••••••"
+                    required
+                    value={form.password}
+                    onChange={handleChange}
+                    className="text-white placeholder:text-gray-400 pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={toggleShowPassword}
+                    className="absolute right-3 text-gray-400 hover:text-gray-200 flex items-center justify-center"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
               </div>
+
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? "Cadastrando..." : "Cadastrar"}
               </Button>
@@ -166,7 +184,11 @@ export default function Auth() {
         </Tabs>
 
         {(error || success) && (
-          <div className={`text-center mt-4 ${error ? "text-red-500" : "text-green-500"}`}>
+          <div
+            className={`text-center mt-4 ${
+              error ? "text-red-500" : "text-green-500"
+            }`}
+          >
             {error || success}
           </div>
         )}

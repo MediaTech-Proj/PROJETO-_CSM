@@ -12,6 +12,7 @@ interface Movie {
   poster: string;
   duration?: string;
   category?: { name: string };
+  description?: string; 
 }
 
 const AllMovies = () => {
@@ -31,6 +32,7 @@ const AllMovies = () => {
         poster: m.posterUrl || "/default-poster.jpg",
         duration: m.duration,
         category: m.category,
+        description: m.description || "Descrição não disponível",
       }));
       setMovies(mapped);
     } catch (err) {
@@ -49,7 +51,6 @@ const AllMovies = () => {
     }
 
     try {
-      // Checa se já está nos favoritos
       const resFavorites = await fetch("http://localhost:3001/favorites", {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -74,8 +75,6 @@ const AllMovies = () => {
         });
       }
 
-      // opcional: atualizar lista de filmes ou estado de favoritos local
-      // aqui não vamos mexer na lista de filmes, pois o MovieCard cuida do estado interno
     } catch (err) {
       console.error(err);
     }

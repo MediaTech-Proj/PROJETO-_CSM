@@ -10,6 +10,7 @@ interface Movie {
   genre: string;
   poster: string;
   duration?: string;
+  description?: string;
 }
 
 interface MovieSectionProps {
@@ -50,6 +51,7 @@ export const MovieSection = ({ title, movies, icon, onAddFavorite }: MovieSectio
               genre={movie.genre}
               poster={movie.poster}
               duration={movie.duration}
+              description={movie.description}   
               onAddFavorite={onAddFavorite}
             />
           ))}

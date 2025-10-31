@@ -10,6 +10,7 @@ interface Movie {
   genre: string;
   poster: string;
   duration?: string;
+  description?: string; 
 }
 
 const Favorites = () => {
@@ -33,6 +34,7 @@ const Favorites = () => {
           genre: m.genre || "Desconhecido",
           poster: m.posterUrl || "/default-poster.jpg",
           duration: m.duration,
+          description: m.description || "Descrição não disponível",
         }))
       );
     } catch (err) {

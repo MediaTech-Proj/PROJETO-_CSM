@@ -2,13 +2,17 @@ import { Play, Info, Star, Calendar, Users } from "lucide-react";
 import { Button } from "./ui/button";
 import heroBackground from "@/assets/hero-background.jpg";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 
 export const Hero = () => {
   const navigate = useNavigate();
+  const [openHowItWorks, setOpenHowItWorks] = useState(false);
 
   const handleClick = () => {
-    navigate("/movies"); // redireciona para a página de todos os filmes
+    navigate("/movies");
   };
+
   return (
     <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden">
       {/* Background Image */}
@@ -61,7 +65,7 @@ export const Hero = () => {
             <Button
               size="lg"
               className="bg-gradient-to-r from-primary to-secondary hover:from-primary-glow hover:to-secondary-glow shadow-glow-primary text-white px-8 py-3 rounded-full font-semibold"
-              onClick={handleClick} // 👈 adiciona aqui
+              onClick={handleClick}
             >
               <Play className="w-5 h-5 mr-2 fill-current" />
               Começar Agora
@@ -71,6 +75,7 @@ export const Hero = () => {
               variant="outline"
               size="lg"
               className="border-border/50 text-foreground hover:bg-muted/50 hover:border-primary/50 px-8 py-3 rounded-full font-semibold"
+              onClick={() => setOpenHowItWorks(true)}
             >
               <Info className="w-5 h-5 mr-2" />
               Como Funciona
@@ -85,6 +90,27 @@ export const Hero = () => {
 
       {/* Bottom Gradient */}
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
+
+      {/* Modal "Como Funciona" */}
+      <Dialog open={openHowItWorks} onOpenChange={setOpenHowItWorks}>
+        <DialogContent className="max-w-2xl bg-background text-white p-6 rounded-lg">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold mb-4">Como Funciona</DialogTitle>
+          </DialogHeader>
+          <p className="text-gray-300 mb-4 leading-relaxed">
+            O MediaTech é um site que recomenda filmes e séries com base em suas preferências.
+            Você pode explorar filmes populares, clássicos e novidades em alta,
+            adicionar aos seus favoritos e descobrir títulos que combinam com seu gosto.
+          </p>
+          <p className="text-gray-300 mb-4 leading-relaxed">
+            Basta navegar pelas seções, usar a barra de pesquisa para encontrar qualquer filme
+            e clicar nos cards para ver detalhes, avaliações e mais informações.
+          </p>
+          <p className="text-gray-300 leading-relaxed">
+            Comece agora mesmo e descubra seu próximo filme favorito em poucos cliques!
+          </p>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 };
